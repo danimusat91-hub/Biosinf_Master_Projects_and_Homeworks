@@ -104,7 +104,6 @@ print("="*40)
 
 test_preds = best_model.predict(X_test)
 UA_val = getUA(to_categorical(test_preds,3), to_categorical(Y_test,3),3)
-print("\nFINAL TEST SET METRICS (RECAP):%d",UA_val)
 report = classification_report(Y_test, test_preds)
 print(report)
 

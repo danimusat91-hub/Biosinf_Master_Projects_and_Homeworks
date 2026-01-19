@@ -1,6 +1,5 @@
-
 import numpy as np
-from sklearn import SVC
+from sklearn.svm import SVC
 from utils import getUA,getWA
 from keras.utils import to_categorical
 from sklearn.metrics import classification_report, confusion_matrix

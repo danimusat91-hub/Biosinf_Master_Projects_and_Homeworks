@@ -99,10 +99,7 @@ def iemg(data):
     return iemg_data
 
 def clean_signal_list(channel_list, fs=512):
-    """
-    channel_list: List of 8 numpy arrays, each 30720 samples long.
-    fs: Sampling frequency (512 Hz).
-    """
+ 
     cleaned_channels = []
     
     # 1. Band-pass Filter Design (Industry standard 20-250 Hz)
@@ -170,12 +167,7 @@ def plot_emg_analysis(signal_data, fs=512, title="sEMG Signal Analysis"):
             axes[i, 1].set_xlabel("Frequency (Hz)")
     plt.show()
 
-def codeOneHot(Y_int,Kclass):
-    DB_size = Y_int.shape[0]
-    Y_onehot = np.zeros((DB_size, Kclass))
-    for i in range(0, DB_size):
-        Y_onehot[i,Y_int[i]] = 1
-    return Y_onehot
+
 
 def getUA(OUT, TAR, Kclass):
     Kclass = OUT.shape[1]
