@@ -1,11 +1,5 @@
 import numpy as np
-from scipy.signal import spectrogram
-from scipy.signal import stft
-import pywt
-from scipy.stats import skew,kurtosis
-import scipy.signal
-from scipy.signal import welch,periodogram
-from scipy.integrate import quad
+from scipy.stats import skew
 from scipy import signal
 import matplotlib.pyplot as plt
 
@@ -68,22 +62,6 @@ def Skewness(data):
 
 
 
-def wavelet(signal):
-    fs = 512  # Frecvență de eșantionare (Hz)
-    T = 2  # Durata semnalului (secunde)
-    t = np.arange(0, T, 1/fs)  # Vector de timp
-    # Creați un wavelet mexican hat (Ricker wavelet)
-    wavelet = pywt.ContinuousWavelet('mexh')
-    # Generați coeficienții wavelet pentru semnal
-    coeffs,_ = pywt.cwt(signal, scales=np.arange(1, 25), wavelet=wavelet)
-    features = []  
-    # Calcularea energiei totale în coeficienții wavelet
-    total_energy = np.sum(np.abs(coeffs) ** 2)
-    peaks = np.max(coeffs, axis=1)
-    return kurtosis(coeffs)
-
-
-
 
 def ampl_filter(data,threshold):
     for i in range(len(data)):
@@ -105,13 +83,13 @@ def clean_signal_list(channel_list, fs=512):
     # 1. Band-pass Filter Design (Industry standard 20-250 Hz)
     # This helps in recognizing movements with varying intensity [cite: 91, 92]
     low = 20 / (0.5 * fs)
-    high = 150 / (0.5 * fs)
-    b_band, a_band = signal.butter(8, [low, high], btype='band')
+    high = 200 / (0.5 * fs)
+    b_band, a_band = signal.butter(6, [low, high], btype='band')
     
     # 2. Notch Filter Design (to remove 50Hz/60Hz power line noise) [cite: 76, 88]
     # Adjust 60 to 50 depending on your dataset's origin
     w0 = 60 / (0.5 * fs) 
-    b_notch, a_notch = signal.iirnotch(w0, Q=60)
+    b_notch, a_notch = signal.iirnotch(w0, Q=40)
     
     for raw_channel in channel_list:
         # A. DC Offset Removal
@@ -120,10 +98,11 @@ def clean_signal_list(channel_list, fs=512):
         
         # # B. Apply Band-pass
         # # Filters noise and artifacts to facilitate feature extraction
-        filtered_band = signal.filtfilt(b_band, a_band, centered)
+        filtered_signal = signal.filtfilt(b_band, a_band, centered)
+        
         #
         # # C. Apply Notch
-        filtered_signal= signal.filtfilt(b_notch, a_notch, filtered_band)
+        # filtered_signal= signal.filtfilt(b_notch, a_notch, filtered_signal)
 
 
         cleaned_channels.append(filtered_signal)

@@ -7,18 +7,18 @@ import matplotlib.pyplot as plt
 import seaborn as sns
 
 ## Train data
-X_train = np.load("./Data_filtered_500ms_exercises_Train.npy")
-Y_train = np.load("./Labels_filtered_500ms_exercises_Train.npy")
+X_train = np.load("./Extracted_Data/Data_filtered_1s_exercises_Train.npy")
+Y_train = np.load("./Extracted_Data/Labels_filtered_1s_exercises_Train.npy")
 
 
 ## Val Data
-X_val = np.load("./Data_filtered_500ms_exercises_Val.npy")
-Y_val = np.load("./Labels_filtered_500ms_exercises_Val.npy")
+X_val = np.load("./Extracted_Data/Data_filtered_1s_exercises_Val.npy")
+Y_val = np.load("./Extracted_Data/Labels_filtered_1s_exercises_Val.npy")
 
 
 ## Test Data
-X_test = np.load("./Data_filtered_500ms_exercises_Test.npy")
-Y_test = np.load("./Labels_filtered_500ms_exercises_Test.npy")
+X_test = np.load("./Extracted_Data/Data_filtered_1s_exercises_Test.npy")
+Y_test = np.load("./Extracted_Data/Labels_filtered_1s_exercises_Test.npy")
 
 
 
@@ -26,7 +26,7 @@ Y_test = np.load("./Labels_filtered_500ms_exercises_Test.npy")
 count = 0
 n_estimators_list = [100, 300]
 max_depth_list = [14, 16, None]
-max_features_list = [ 0.5]
+max_features_list = [ 0.75]
 min_samples_split_list = [40, 60]
 min_samples_leaf_list = [20 , 40]
 bootstrap_list = [True]
@@ -114,7 +114,7 @@ plt.figure(figsize=(10, 7))
 sns.heatmap(conf_matrix, annot=True, fmt='d', cmap='Blues')
 plt.xlabel('Predicted Labels')
 plt.ylabel('True Labels')
-plt.title('MLP Confusion Matrix')
+plt.title('Random Forrest Confusion Matrix')
 plt.show()
 
 

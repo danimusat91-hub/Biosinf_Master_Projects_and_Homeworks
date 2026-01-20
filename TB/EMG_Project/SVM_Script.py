@@ -27,7 +27,7 @@ Y_test = np.load("./Labels_filtered_500ms_exercises_Test.npy")
 # Using logarithmic scales (0.1, 1, 10) is more effective than linear scales
 c_list = [0.1, 1, 10]
 # We only use RBF (the gold standard) and Linear (the fastest)
-kernel_list = ['rbf', 'linear']
+kernel_list = [ 'linear']
 # 'scale' is a smart default that handles most cases
 gamma_list = ['scale', 0.01, 0.1]
 
@@ -96,5 +96,5 @@ plt.figure(figsize=(10, 7))
 sns.heatmap(conf_matrix, annot=True, fmt='d', cmap='Blues')
 plt.xlabel('Predicted Labels')
 plt.ylabel('True Labels')
-plt.title('MLP Confusion Matrix')
+plt.title('SVM Confusion Matrix')
 plt.show()

@@ -282,11 +282,11 @@ class processData():
                 rms_mean = np.mean(rms)
                 features = [rms,mav,zcr,ssc,wl]
                 
-                if mav_mean > 10:
-                    X.append(features)
-                    Y.append(var)
-                # X.append(features)
-                # Y.append(var)
+                # if mav_mean > 10:
+                #     X.append(features)
+                #     Y.append(var)
+                X.append(features)
+                Y.append(var)
                 rms_values_channel1 = []
                 rms_values_channel2 = []
                 rms_values_channel3 = []
@@ -381,118 +381,6 @@ class processData():
                 
 
         return X,Y
-
-
-
-    def calculateAsymetry_windowed(self,assymetry_feature):
-       
-        N = int(self.frequencySampling * self.window_length)
-        start = 0
-        Y = []
-        
-        for count,d in enumerate(self.dataStore):
-            K_output = []
-            start = 0
-            cnt = 0;
-            while start + N <= len(d[0]):
-                cnt += 1
-                K_skew = 0
-                K_rms = 0
-                
-                for i in range (7):
-                    Channel_i = d[i][start:start + N]
-                    Skew_i = utils.Skewness(Channel_i)
-                    rms_i = utils.RMS(Channel_i)
-                    for j in range (i+1,8):
-                        Channel_j = d[j][start:start + N]   
-                        Skew_j = utils.Skewness(Channel_j)
-                        rms_j = utils.RMS(Channel_j) 
-                        K_skew = max(K_skew,np.abs(Skew_i - Skew_j)/max(Skew_i,Skew_j)) 
-                        K_rms = max(K_rms,np.abs(rms_i - rms_j)/max(rms_i,rms_j))
-                
-                features = [K_rms, K_skew]
-                K_output.append(features)
-                start += int(self.overlapping*N)
-            
-            K_output = np.array(K_output)
-            
-            if assymetry_feature == "RMS":
-                normal_windows = np.sum(K_output[:][0]<15)
-                minor_windows = np.sum(K_output[:][0]<25)
-                major_windows = np.sum(K_output[:][0]>25)
-                voting = np.array([normal_windows,minor_windows,major_windows])
-                assy = voting.argmax() 
-                
-                if assy == 0:
-                    Y.append("Healthy")
-                elif assy == 1:
-                    Y.append("Minor Assymetry")
-                else:
-                    Y.append("Major Assymetry")
-                    
-            elif assymetry_feature == "Skewness":
-                normal_windows = np.sum(K_output[:][1]<15)
-                minor_windows = np.sum(K_output[:][1]<25)
-                major_windows = np.sum(K_output[:][1]>25)
-                voting = np.array([normal_windows,minor_windows,major_windows])
-                assy = voting.argmax() 
-                
-                if assy == 0:
-                    Y.append("Healthy")
-                elif assy == 1:
-                    Y.append("Minor Assymetry")
-                else:
-                    Y.append("Major Assymetry")
-            else:
-                print("Wrong parameter")
-                break
-            
-        return Y
-    
-    def calculateAsymetry(self,assymetry_feature):
-       
-        Y = []
-        for count,d in enumerate(self.dataStore):
-            K_skew = 0
-            K_rms = 0
-            
-            for i in range (7):
-                Channel_i = d[i][:]
-                Skew_i = utils.Skewness(Channel_i)
-                rms_i = utils.RMS(Channel_i)
-                for j in range (i+1,8):
-                    Channel_j = d[j][:]   
-                    Skew_j = utils.Skewness(Channel_j)
-                    rms_j = utils.RMS(Channel_j) 
-                    K_skew = max(K_skew,np.abs(Skew_i - Skew_j)/max(Skew_i,Skew_j)) 
-                    K_rms = max(K_rms,np.abs(rms_i - rms_j)/max(rms_i,rms_j))
-            
-            features = [K_rms, K_skew]
-
-            
-            if assymetry_feature == "RMS":
-                
-                if features[0] < 15:
-                    Y.append("Healthy")
-                elif features[0] < 25:
-                    Y.append("Minor Assymetry")
-                else:
-                    Y.append("Major Assymetry")
-                    
-            elif assymetry_feature == "Skewness":
-                if features[1] < 15:
-                    Y.append("Healthy")
-                elif features[1] < 25:
-                    Y.append("Minor Assymetry")
-                else:
-                    Y.append("Major Assymetry")
-            else:
-                print("Wrong parameter")
-                break
-            
-        return Y
-
-
 
 
 
@@ -848,5 +736,175 @@ class processData():
                 
                 
         return X,Y
-    
 
+    
+    def calculateAsymetry_windowed(self,assymetry_feature,window_proc):
+       
+        N = int(self.frequencySampling * self.window_length)
+        start = 0
+        Y = []
+        
+        for count,d in enumerate(self.dataStore):
+            K_output = []
+            start = 0
+            cnt = 0;
+            while start + N <= len(d[0]):
+                cnt += 1
+                K_skew = 0
+                K_rms = 0
+                
+                for i in range (7):
+                    Channel_i = d[i][start:start + N]
+                    Skew_i = utils.Skewness(Channel_i)
+                    rms_i = utils.RMS(Channel_i)
+                    for j in range (i+1,8):
+                        Channel_j = d[j][start:start + N]   
+                        Skew_j = utils.Skewness(Channel_j)
+                        rms_j = utils.RMS(Channel_j) 
+                        K_skew = max(K_skew,np.abs(Skew_i - Skew_j)/max(Skew_i,Skew_j)) 
+                        K_rms = max(K_rms,np.abs(rms_i - rms_j)/max(rms_i,rms_j))
+                
+                features = [K_rms, K_skew]
+                K_output.append(features)
+                start += int(self.overlapping*N)
+            
+            K_output = np.array(K_output)
+            if window_proc == "Voting":
+                if assymetry_feature == "RMS":
+                    normal_windows = np.sum(K_output[:][0]<15)
+                    minor_windows = np.sum(K_output[:][0]<25)
+                    major_windows = np.sum(K_output[:][0]>25)
+                    voting = np.array([normal_windows,minor_windows,major_windows])
+                    assy = voting.argmax() 
+                    
+                    if assy == 0:
+                        Y.append("Healthy")
+                    elif assy == 1:
+                        Y.append("Minor Assymetry")
+                    else:
+                        Y.append("Major Assymetry")
+                        
+                elif assymetry_feature == "Skewness":
+                    normal_windows = np.sum(K_output[:][1]<15)
+                    minor_windows = np.sum(K_output[:][1]<25)
+                    major_windows = np.sum(K_output[:][1]>25)
+                    voting = np.array([normal_windows,minor_windows,major_windows])
+                    assy = voting.argmax() 
+                    
+                    if assy == 0:
+                        Y.append("Healthy")
+                    elif assy == 1:
+                        Y.append("Minor Assymetry")
+                    else:
+                        Y.append("Major Assymetry")
+                        
+                elif assymetry_feature == "Mean":
+                    normal_windows = np.sum((K_output[:][1] + K_output[:][0])/2 < 15)
+                    minor_windows = np.sum((K_output[:][1] + K_output[:][0])/2 < 25)
+                    major_windows = np.sum((K_output[:][1] + K_output[:][0])/2>25)
+                    voting = np.array([normal_windows,minor_windows,major_windows])
+                    assy = voting.argmax() 
+                    
+                    if assy == 0:
+                        Y.append("Healthy")
+                    elif assy == 1:
+                        Y.append("Minor Assymetry")
+                    else:
+                        Y.append("Major Assymetry")
+                else:
+                    print("Wrong parameter")
+                    break
+                
+            elif window_proc == "Mean_window":
+                if assymetry_feature == "RMS":
+                    normal_windows = np.mean(K_output[:][0])
+                    minor_windows = np.mean(K_output[:][0])
+                    major_windows = np.mean(K_output[:][0])
+                    
+                    if assy == 0:
+                        Y.append("Healthy")
+                    elif assy == 1:
+                        Y.append("Minor Assymetry")
+                    else:
+                        Y.append("Major Assymetry")
+                        
+                elif assymetry_feature == "Skewness":
+                    normal_windows = np.sum(K_output[:][1])
+                    minor_windows = np.sum(K_output[:][1])
+                    major_windows = np.sum(K_output[:][1])
+                    
+                    if assy == 0:
+                        Y.append("Healthy")
+                    elif assy == 1:
+                        Y.append("Minor Assymetry")
+                    else:
+                        Y.append("Major Assymetry")
+                elif assymetry_feature == "Mean":
+                    normal_windows = np.sum(K_output[:][1] + K_output[:][0] )
+                    minor_windows = np.sum(K_output[:][1] + K_output[:][0] )
+                    major_windows = np.sum(K_output[:][1] + K_output[:][0])
+                    
+                    if assy == 0:
+                        Y.append("Healthy")
+                    elif assy == 1:
+                        Y.append("Minor Assymetry")
+                    else:
+                        Y.append("Major Assymetry")
+            
+        return Y
+    
+    def calculateAsymetry(self,assymetry_feature):
+       
+        Y = []
+        for count,d in enumerate(self.dataStore):
+            K_skew = 0
+            K_rms = 0
+            
+            for i in range (7):
+                Channel_i = d[i][:]
+                Skew_i = utils.Skewness(Channel_i)
+                rms_i = utils.RMS(Channel_i)
+                for j in range (i+1,8):
+                    Channel_j = d[j][:]   
+                    Skew_j = utils.Skewness(Channel_j)
+                    rms_j = utils.RMS(Channel_j) 
+                    K_skew = max(K_skew,np.abs(Skew_i - Skew_j)/max(Skew_i,Skew_j)) 
+                    K_rms = max(K_rms,np.abs(rms_i - rms_j)/max(rms_i,rms_j))
+            
+            features = [K_rms, K_skew]
+    
+            
+            if assymetry_feature == "RMS":
+                
+                if features[0] < 15:
+                    Y.append("Healthy")
+                elif features[0] < 25:
+                    Y.append("Minor Assymetry")
+                else:
+                    Y.append("Major Assymetry")
+                    
+            elif assymetry_feature == "Skewness":
+                if features[1] < 15:
+                    Y.append("Healthy")
+                elif features[1] < 25:
+                    Y.append("Minor Assymetry")
+                else:
+                    Y.append("Major Assymetry")
+            elif assymetry_feature == "Mean":
+                if (features[0] + features[1])/2.0 < 15:
+                    Y.append("Healthy")
+                elif (features[0] + features[1])/2.0 < 25:
+                    Y.append("Minor Assymetry")
+                else:
+                    Y.append("Major Assymetry")
+            else:
+                print("Wrong parameter")
+                break
+            
+        return Y
+    
+    
+    
+    
+    
+    
