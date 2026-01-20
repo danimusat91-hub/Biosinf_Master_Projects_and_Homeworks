@@ -5,25 +5,25 @@ import matplotlib.pyplot as plt
 
 
 
-
+# Mean Amplitude Valued
 def MAV(data):
     return np.mean(np.abs(data))
 
-# zero crossing rate
+# Zero Crossing Rate
 def ZCR(data,threshold):
 	return ((data[:-1] * data[1:] < 0) & (np.abs(data[:-1] - data[1:]) > threshold)).sum()
 
 
-#waveform length
+#Waveform Length
 def WL(data):
 	return  (abs(data[:-1]-data[1:])).sum()
 
 
-#root mean square
+#Root Mean Square
 def RMS(data):
     return np.sqrt(np.mean(data**2))
 	
-#slope sign changes
+#Slope Sign Changes
 def SSC(data, alpha):
     # x[i] - x[i-1]
     slope1 = data[1:-1] - data[:-2]
@@ -31,7 +31,6 @@ def SSC(data, alpha):
     slope2 = data[1:-1] - data[2:]
     
     # A sign change occurs if both slopes have the same sign (product > 0)
-    # and the change is significant (> alpha)
     return ((slope1 * slope2) > alpha).sum()
 
 def Energy(data):
@@ -111,10 +110,7 @@ def clean_signal_list(channel_list, fs=512):
 
 
 def plot_emg_analysis(signal_data, fs=512, title="sEMG Signal Analysis"):
-    """
-    signal_data: list or array of shape (8, 30720)
-    fs: sampling frequency (512 Hz as calculated)
-    """
+
     num_channels = 8
     time = np.arange(signal_data[0].size) / fs
     
@@ -134,13 +130,13 @@ def plot_emg_analysis(signal_data, fs=512, title="sEMG Signal Analysis"):
             axes[i, 0].set_xlabel("Time (s)")
 
         # --- 2. Frequency Domain Plot (PSD) ---
-        # Using Welch method as required [cite: 110]
+        # Using Welch method as required
         freqs, psd = signal.welch(ch_data, fs, nperseg=1024)
         
         axes[i, 1].semilogy(freqs, psd, color='tab:red')
         axes[i, 1].set_title(f"Channel {i+1} - Power Spectral Density")
         axes[i, 1].set_ylabel("PSD (V^2/Hz)")
-        axes[i, 1].set_xlim([0, fs/2]) # Plot up to Nyquist [cite: 109]
+        axes[i, 1].set_xlim([0, fs/2]) 
         axes[i, 1].grid(True, which='both', alpha=0.3)
         if i == num_channels - 1:
             axes[i, 1].set_xlabel("Frequency (Hz)")
